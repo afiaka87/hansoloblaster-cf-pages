@@ -15,54 +15,58 @@
     html, body {
       margin: 0;
       padding: 0;
-      background-color: #181818;
+      background-color: #000000; /* Pitch black background */
       font-family: "Open Sans", sans-serif;
-      color: #f2f2f2;
+      color: #f2f2f2; /* Default text color for body */
     }
 
-    /* Main container that centers and constrains width to 900px */
     .container {
       max-width: 900px;
-      margin: 1rem auto 2rem auto; /* top/bottom margin to create spacing */
-      padding: 0;                 /* no horizontal padding */
+      margin: 1rem auto 2rem auto;
+      padding: 0;
     }
 
-    /* Header bar is now 100% width of the container */
     header {
-      background-color: #1b1b1b;
+      /* Using a clearer mid-dark gray for better contrast */
+      background-color: #333333;
       box-shadow: 0 4px 10px rgba(0,0,0,0.4);
       padding: 1rem 2rem;
-      border-radius: 8px;
+      /* border-radius: 8px; <-- Removed for square corners */
       width: 100%;
-      margin-bottom: 1rem; /* spacing between header and video container */
+      margin-bottom: 1rem;
     }
+
     header h1 {
       margin: 0;
       font-size: 1.5rem;
       font-weight: 600;
+      /* --- Updated Header Font Color --- */
+      color: #FFFFFF; /* Changed from inherited #f2f2f2 to pure white */
+      /* --- End of Update --- */
     }
 
-    /* Video container is also 100% width of the .container */
     .video-container {
       position: relative;
       width: 100%;
-      padding-top: 56.25%; /* 16:9 aspect ratio */
-      background: #1b1b1b;
+      background: #1b1b1b; /* Very dark gray for video container */
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-      border-radius: 8px;
+      border-radius: 8px; /* Keeping rounded corners for video container */
       overflow: hidden;
     }
+
     .video-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
+      display: block;
       width: 100%;
-      height: 100%;
+      height: auto;
       border: 0;
-      border-radius: 8px;
+      /* border-radius: 8px; <-- Removed this as overflow:hidden on parent handles it */
     }
 
-    /* Status overlay for stream disconnect */
+    /* If you'd prefer a fixed height, you can set one here: */
+    .video-container iframe {
+      height: 500px;
+    }
+
     .status-overlay {
       position: absolute;
       top: 0;
@@ -79,65 +83,59 @@
       z-index: 15;
       display: none;
     }
+
+    /* Style for the added message */
+    .alternative-play {
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: #cccccc;
+        text-align: center;
+    }
+
+    .alternative-play code {
+        background-color: #333;
+        padding: 0.1em 0.4em;
+        border-radius: 3px;
+        color: #f2f2f2;
+    }
+
+    .alternative-play a {
+        color: #4dabf7;
+        text-decoration: none;
+    }
+
+    .alternative-play a:hover {
+        text-decoration: underline;
+    }
+
   </style>
 </head>
 <body>
-  <!-- Wrap both the header and the video in the same .container -->
   <div class="container">
     <header>
       <h1>HanSoloBlaster's Stream</h1>
     </header>
 
     <div class="video-container" id="videoContainer">
-      <!-- RTMP/WebRTC Player (iframe) -->
       <iframe
-        src="https://customer-6qfdxdt6v9r0omsq.cloudflarestream.com/376de7ce568513fed5e238216aa03df1/iframe"
-        style="border: none;"
+        src="https://customer-6qfdxdt6v9r0omsq.cloudflarestream.com/376de7ce568513fed5e238216aa03df1/iframe?dvrEnabled=True"
         allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
         allowfullscreen
       ></iframe>
 
-      <!-- Status overlay -->
       <div class="status-overlay" id="statusOverlay">Stream disconnected</div>
     </div>
+
+    <!-- Added message below the video container -->
+    <p class="alternative-play">
+      Or play with e.g. <code>mpv</code>, <code>vlc</code> using the
+      <a href="https://customer-6qfdxdt6v9r0omsq.cloudflarestream.com/376de7ce568513fed5e238216aa03df1/manifest/video.m3u8">HLS URL</a>.
+    </p>
+    <!-- End of added message -->
+
   </div>
 
   <!-- Bootstrap Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // Cloudflare Worker endpoint to fetch live stream status.
-    const statusEndpoint = "https://my-worker.example.workers.dev/status";
-
-    // Get the status overlay element.
-    const statusOverlay = document.getElementById("statusOverlay");
-
-    // Poll the Cloudflare Worker every second to check stream status.
-    async function checkStreamStatus() {
-      try {
-        const response = await fetch(statusEndpoint);
-        if (!response.ok) {
-          console.error("Error fetching stream status:", response.status);
-          return;
-        }
-        const data = await response.json();
-        // Expected data format: { status: "active" } or similar.
-        const streamStatus = data.status;
-        updateStreamOverlay(streamStatus);
-      } catch (error) {
-        console.error("Error checking stream status:", error);
-      }
-    }
-
-    // Update the overlay based on the stream status.
-    function updateStreamOverlay(status) {
-      if (status !== "active") {
-        statusOverlay.style.display = "flex";
-      } else {
-        statusOverlay.style.display = "none";
-      }
-    }
-
-    setInterval(checkStreamStatus, 1000);
-  </script>
 </body>
 </html>
